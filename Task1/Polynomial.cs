@@ -7,26 +7,49 @@ namespace Task1
     {
         public delegate double ArithmeticalOperation(double x, double y);
         private readonly double[] _multipliers;
+        public int Degree => _multipliers.Length;
+
         #region .ctors
         public Polynomial(params double[] multipliers)
         {
-            if (multipliers.Length == 0)
+            if (multipliers == null)
                 throw new ArgumentNullException("The value is null" + nameof(multipliers));
-            _multipliers = new double[multipliers.Length];
             _multipliers = multipliers;
         }
         #endregion
 
+        public double this[int i]
+        {
+            get
+            {
+                return _multipliers[i];
+            }
+            set
+            {
+                if(i != _multipliers.Length - 1)
+                _multipliers[i] = value;
+            }
+        }
+
         #region public methods
         public override int GetHashCode()
         {
+            if (_multipliers.Length == 1)
+                return (int)_multipliers[0];
+
+            if (_multipliers.Count(m => m == 0) == _multipliers.Length - 1)
+                return (int)_multipliers.First(m => m != 0);
+
             var code = _multipliers.Select((m, i) => m * (i + 1)).Sum();
-            return (int)code;
+            return (int)code % _multipliers.Length;
         }
 
         public override bool Equals(object obj)
         {
-            return this.GetHashCode() == obj?.GetHashCode();
+            if (obj == null || GetType() != obj.GetType())
+                return false;
+
+            return GetHashCode() == obj.GetHashCode();
         }
 
         public static bool operator ==(Polynomial a, Polynomial b)
@@ -40,6 +63,7 @@ namespace Task1
             {
                 return false;
             }
+
             return a.Equals(b);
         }
 
@@ -55,6 +79,19 @@ namespace Task1
             if (b == null)
                 throw new ArgumentNullException("The value is null" + nameof(b));
             return Calculate(a, b, PlusOperation);
+        }
+
+        public static Polynomial operator +(Polynomial a, int b)
+        {
+            if (a == null)
+                throw new ArgumentNullException("The value is null" + nameof(a));
+
+            var multiplies = new double[a._multipliers.Length];
+           
+            for (int i = 0; i < a._multipliers.Length; i++)
+                multiplies[i] = a._multipliers[i];
+             multiplies[0] += b;
+            return new Polynomial(multiplies);
         }
 
         public static Polynomial operator -(Polynomial a, Polynomial b)
@@ -78,10 +115,22 @@ namespace Task1
             for (int i = 0; i < a._multipliers.Length; i++)
                 for (int j = 0; j < b._multipliers.Length; j++)
                 {
-                    multipliers[i + j + 1] += a._multipliers[i]*b._multipliers[j];
+                    multipliers[i + j + 1] += a._multipliers[i] * b._multipliers[j];
                 }
 
             return new Polynomial(multipliers);
+        }
+
+        public static Polynomial operator *(Polynomial a, int k)
+        {
+            if (a == null)
+                throw new ArgumentNullException("The value is null" + nameof(a));
+
+            var multiplies = new double[a._multipliers.Length];
+            for (int i = 0; i < a._multipliers.Length; i++)
+                multiplies[i] = a._multipliers[i]*k;
+            
+            return new Polynomial(multiplies);
         }
         #endregion
 
@@ -102,37 +151,35 @@ namespace Task1
             int i = 0;
             double m = 0.0;
 
-            try
+            do
             {
-                do
+                if (a._multipliers.Length - 1 < i)                       
                 {
-                    m = methodArithmeticalOperation(a._multipliers[i], b._multipliers[i]);
-                    multipliers[i] = m;
-                    ++i;
-                } while (i <= a._multipliers.Length && i <= b._multipliers.Length);
-            }
+                    AppendMulsOver(ref multipliers, i, b._multipliers);
+                    return new Polynomial(multipliers);
+                }
+                else if (b._multipliers.Length - 1 < i)
+                {
+                    AppendMulsOver(ref multipliers, i, a._multipliers);
+                    return new Polynomial(multipliers);
+                }
+                m = methodArithmeticalOperation(a._multipliers[i], b._multipliers[i]);
+                multipliers[i] = m;
+                ++i;
+            } while (i <= a._multipliers.Length && i <= b._multipliers.Length);
 
-            catch (IndexOutOfRangeException)
-            {
-                if (a._multipliers.Length - 1 < i)
-                {
-                    while (i < b._multipliers.Length)
-                    {
-                        multipliers[i] = b._multipliers[i];
-                        ++i;
-                    }
-                }
-                else
-                {
-                    while (i < a._multipliers.Length)
-                    {
-                        multipliers[i] = a._multipliers[i];
-                        ++i;
-                    }
-                }
-            }
             return new Polynomial(multipliers);
         }
+
+        private static void AppendMulsOver(ref double[] multipliers, int index, double[] source)
+        {
+            while (index < source.Length)
+            {
+                multipliers[index] = source[index];
+                ++index;
+            }
+        }
+
         #endregion
     }
 }
