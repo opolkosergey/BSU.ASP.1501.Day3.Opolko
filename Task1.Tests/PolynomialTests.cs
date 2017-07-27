@@ -6,7 +6,7 @@ namespace Task1.Tests
     [TestFixture]
     internal class PolynomialTests
     {
-       public IEnumerable<TestCaseData> TestMul
+       public static IEnumerable<TestCaseData> TestMul
         {
             get
             {
@@ -24,7 +24,7 @@ namespace Task1.Tests
             return result.Equals(a * b);
         }
 
-        public IEnumerable<TestCaseData> TestMulOnNumber
+        public static IEnumerable<TestCaseData> TestMulOnNumber
         {
             get
             {
@@ -46,7 +46,7 @@ namespace Task1.Tests
             return result.Equals(a * k);
         }
 
-        public IEnumerable<TestCaseData> TestPlus
+        public static IEnumerable<TestCaseData> TestPlus
         {
             get
             {
@@ -64,7 +64,7 @@ namespace Task1.Tests
             return result.Equals(a + b);
         }
 
-        public IEnumerable<TestCaseData> TestPlusNumber
+        public static IEnumerable<TestCaseData> TestPlusNumber
         {
             get
             {
@@ -82,7 +82,7 @@ namespace Task1.Tests
             return result.Equals(a + b);
         }
 
-        public IEnumerable<TestCaseData> TestMinus
+        public static IEnumerable<TestCaseData> TestMinus
         {
             get
             {
